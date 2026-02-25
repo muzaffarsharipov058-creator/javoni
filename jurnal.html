@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javoni Lyceum — Электронный журнал</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Стили полностью повторяют предыдущий вариант с меню-бургером */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --primary: #007AFF;
+            --primary-dark: #0056CC;
+            --background: #FFFFFF;
+            --surface: #F5F5F7;
+            --border-light: #E8E8ED;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #1D1D1F;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--background);
+            padding: 12px 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            height: 44px;
+            width: auto;
+        }
+
+        .header-text h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-text p {
+            font-size: 14px;
+            color: #86868B;
+        }
+
+        .menu-button {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--primary);
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .menu-button:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+        }
+
+        .menu-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: var(--background);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            padding: 24px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .menu-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .menu-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #86868B;
+            padding: 5px;
+        }
+
+        .subject-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .subject-item {
+            padding: 15px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        .subject-item:hover,
+        .subject-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        main {
+            padding: 28px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .subject-header {
+            margin-bottom: 25px;
+            padding: 20px 24px;
+            background: var(--background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+        }
+
+        .subject-title {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .journal-container {
+            background: var(--background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+            padding: 10px;
+        }
+
+        .iframe-wrapper {
+            width: 100%;
+            height: 600px;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (max-width: 600px) {
+            header { padding: 12px 16px; }
+            .logo { height: 36px; }
+            .header-text h1 { font-size: 18px; }
+            main { padding: 16px; }
+            .subject-title { font-size: 24px; }
+            .iframe-wrapper { height: 500px; }
+            .menu-sidebar { width: 260px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            
+            <div class="header-text">
+                <h1>Javoni Lyceum</h1>
+                <p>Электронный журнал</p>
+            </div>
+        </div>
+        <button class="menu-button" id="menuButton">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="menu-sidebar" id="menuSidebar">
+        <div class="menu-header">
+            <h2>Предметы</h2>
+            <button class="close-menu" id="closeMenu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="subject-list" id="subjectList"></div>
+    </div>
+
+    <main>
+        <div class="subject-header">
+            <h1 class="subject-title" id="subjectTitle">Журнал успеваемости</h1>
+        </div>
+
+        <div class="journal-container">
+            <div class="iframe-wrapper">
+                <iframe id="journalFrame" src=""></iframe>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ⚙️ ВСЕ ИЗВЕСТНЫЕ GID НА ДАННЫЙ МОМЕНТ
+        const subjects = [
+            { name: '📒 Журнал успеваемости', gid: '0' },              // обычно первый лист
+            { name: '📊 Сводка', gid: 'GID_СВОДКИ' },                  // нужно узнать
+            { name: '📝 Оценки', gid: 'GID_ОЦЕНОК' },                  // нужно узнать
+            { name: '⚛️ Физика', gid: 'GID_ФИЗИКИ' },                  // нужно узнать
+            { name: '📐 Алгебра (копия)', gid: '425210832' },          // из вашей ссылки
+            { name: '🔨 Труд / Craft', gid: '710025517' }              // уже известен
+            // добавьте остальные по аналогии (например, "алгебра (копия) (копия)" может иметь другой gid)
+        ];
+
+        const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQottaQB3HEqyEwXf03JI9LoOaMl0qpoygpmknztWRN_11OHUUUA3AQ0MlEjBqup9E3c9DG8ItfrQGI/pubhtml?widget=true&headers=false';
+
+        // Элементы DOM
+        const menuButton = document.getElementById('menuButton');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuSidebar = document.getElementById('menuSidebar');
+        const closeMenu = document.getElementById('closeMenu');
+        const subjectList = document.getElementById('subjectList');
+        const titleEl = document.getElementById('subjectTitle');
+        const frame = document.getElementById('journalFrame');
+
+        // Загрузка предмета по индексу
+        function loadSubject(index) {
+            const subj = subjects[index];
+            if (!subj) return;
+            titleEl.textContent = subj.name;
+            frame.src = baseUrl + '&gid=' + subj.gid;
+
+            document.querySelectorAll('.subject-item').forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+
+            // Автоматически закрываем меню после выбора
+            menuSidebar.classList.remove('active');
+            menuOverlay.style.display = 'none';
+        }
+
+        // Построить список кнопок
+        subjects.forEach((subj, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'subject-item';
+            btn.textContent = subj.name;
+            btn.addEventListener('click', () => loadSubject(idx));
+            subjectList.appendChild(btn);
+        });
+
+        // Открыть меню
+        menuButton.addEventListener('click', () => {
+            menuSidebar.classList.add('active');
+            menuOverlay.style.display = 'block';
+        });
+
+        // Закрыть меню (крестик и оверлей)
+        closeMenu.addEventListener('click', () => {
+            menuSidebar.classList.remove('active');
+            menuOverlay.style.display = 'none';
+        });
+
+        menuOverlay.addEventListener('click', () => {
+            menuSidebar.classList.remove('active');
+            menuOverlay.style.display = 'none';
+        });
+
+        // Загрузить первый предмет по умолчанию
+        loadSubject(0);
+    </script>
+
+    <!-- ИНСТРУКЦИЯ: КАК ДОБАВИТЬ НЕДОСТАЮЩИЕ GID
+         1. Откройте таблицу в браузере: 
+            https://docs.google.com/spreadsheets/d/e/2PACX-1vQottaQB3HEqyEwXf03JI9LoOaMl0qpoygpmknztWRN_11OHUUUA3AQ0MlEjBqup9E3c9DG8ItfrQGI/pubhtml
+         2. Внизу переключитесь на лист (например, "физика").
+         3. Посмотрите на адресную строку — в конце появится #gid=123456789.
+         4. Скопируйте число и вставьте в массив subjects выше вместо GID_ФИЗИКИ.
+         5. Повторите для "Сводка", "Оценки" и других.
+    -->
+</body>
+</html>
